@@ -1,0 +1,98 @@
+{
+  "manifest_version": 3,
+  "name": "BYSuport",
+  "version": "7.0.5",
+  "description": "Esteira automatizada de suporte Bling, Octadesk e preenchimento nativo no Slack.",
+  "icons": {
+    "16": "logo.png",
+    "48": "logo.png",
+    "128": "logo.png"
+  },
+  "action": {
+    "default_icon": {
+      "16": "logo.png",
+      "24": "logo.png",
+      "32": "logo.png"
+    }
+  },
+ "background": {
+    "service_worker": "background.js"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "permissions": [
+    "storage",
+    "clipboardRead"
+  ],
+ "host_permissions": [
+    "https://app.octadesk.com/*",
+    "https://*.bling.com.br/adm.empresa.php*",
+    "https://*.bling.com.br/suporte.php*",
+    "https://status.bling.com.br/*",
+    "https://generativelanguage.googleapis.com/*",
+    "https://app.slack.com/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["Slack.png", "logo_exclamacao.png", "usuario_suporte.png"],
+      "matches": ["https://app.octadesk.com/*"]
+    }
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://app.octadesk.com/*"
+      ],
+      "js": [
+        "scripts/octadesk.js"
+      ],
+      "css": [
+        "scripts/octadesk.css"
+      ]
+    },
+    {
+      "matches": [
+        "https://*.bling.com.br/adm.empresa.php*"
+      ],
+      "js": [
+        "scripts/bling-adm-main.js"
+      ],
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://*.bling.com.br/adm.empresa.php*"
+      ],
+      "js": [
+        "scripts/bling-adm.js"
+      ],
+      "world": "ISOLATED"
+    },
+    {
+      "matches": [
+        "https://*.bling.com.br/suporte.php*"
+      ],
+      "js": [
+        "scripts/bling-suporte.js"
+      ]
+    },
+    {
+      "matches": [
+        "https://app.slack.com/*"
+      ],
+      "js": [
+        "scripts/slack.js"
+      ]
+    },
+    {
+      "matches": [
+        "https://status.bling.com.br/*"
+      ],
+      "js": [
+        "scripts/bling-status.js"
+      ]
+    }
+  ]
+}
