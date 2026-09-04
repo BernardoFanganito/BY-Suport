@@ -86,7 +86,7 @@ function mostrarToast(texto) {
 }
 
 function atualizarBadgeNomeEmpresa() {
-  const titulo = document.querySelector('h2[class*="_header-title"]');
+  const titulo = document.querySelector('h2[class*="header-title"]');
   if (!titulo) {
     console.log('[BY Support] ATENÇÃO: título do cliente (h2) não encontrado no cabeçalho — badge não pode ser inserido.');
     return;
@@ -145,7 +145,7 @@ function atualizarBadgeNomeEmpresa() {
 // ==========================================
 function injetarBotaoTicketCreator() {
   if (document.getElementById('ticket-creator-wrapper')) return;
-  const contêineres = Array.from(document.querySelectorAll('div[class*="_header-actions-container"]'));
+    const contêineres = Array.from(document.querySelectorAll('div[class*="header-actions-container"], div[class*="_header-actions-container"]'));
   
   const containerAcoes = contêineres.find(c => c.closest('main') || c.closest('[class*="chat-room"]') || c.closest('[class*="conversation"]')) || contêineres[0];
   
@@ -219,13 +219,29 @@ function injetarBotaoTicketCreator() {
 }
 
 function obterIdEmpresaDaTela() {
-  const labels = Array.from(document.querySelectorAll('p, div, span, h3, h4'));
-  const idLabel = labels.find(el => el.textContent.trim() === 'ID Empresa');
+  // Busca o rótulo exato "ID Empresa" (com ou sem asterisco), excluindo tooltips
+  // que também têm esse texto mas são elementos com filhos.
+  const labels = Array.from(document.querySelectorAll('p, div, span, h3, h4, label'));
+  const idLabel = labels.find(el => {
+    const texto = el.textContent.trim();
+    return (texto === 'ID Empresa' || texto === 'ID Empresa *') && el.children.length === 0;
+  });
+
   if (idLabel) {
-    const container = idLabel.closest('[class*="_field-container"]');
-    const valueElement = container ? container.querySelector('[class*="_text-overflow"]') : null;
-    if (valueElement && valueElement.textContent.trim()) {
-      return valueElement.textContent.trim().replace(/\D/g, '');
+    // Tenta o container com qualquer variação de nome (com ou sem underscore prefixado)
+    const container = idLabel.closest('[class*="field-container"]');
+    if (container) {
+      const valueElement = container.querySelector('[class*="_text-overflow"], [class*="text-overflow"]');
+      if (valueElement && valueElement.textContent.trim()) {
+        return valueElement.textContent.trim().replace(/\D/g, '');
+      }
+    }
+    // Fallback: percorre elementos vizinhos procurando um valor numérico longo
+    let proximo = idLabel.nextElementSibling;
+    for (let i = 0; i < 5 && proximo; i++) {
+      const texto = proximo.textContent.trim().replace(/\D/g, '');
+      if (texto.length >= 5) return texto;
+      proximo = proximo.nextElementSibling || proximo.parentElement?.nextElementSibling;
     }
   }
   return null;
